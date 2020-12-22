@@ -3,12 +3,12 @@ const STORE = {
     {
       title: "What year did World War 1 begin in?",
       answers: ["1912", "1914", "1913", "1915"],
-      correct: 3,
+      correct: 1,
       src: "images/first-q-wwi.jpg",
     },
     {
       title:
-        "Whose assassination by Gavrilo Princip lead to the culmination of the war",
+        "Whose assassination by Gavrilo Princip lead to the culmination of the war?",
       answers: [
         "Archduke Franz Ferdinand",
         "Kaiser Wilhelm II",
@@ -27,7 +27,7 @@ const STORE = {
         "Serbia, Russia, France",
       ],
       correct: 1,
-      src: "images/wwi-cartoon.jpg",
+      src: "images/wwi-cartoon.jpeg",
     },
     {
       title: "What countries formed the “Triple Alliance”?",
@@ -38,7 +38,7 @@ const STORE = {
         "Austro-Hungary, Italy, Germany",
       ],
       correct: 3,
-      src: "images/triple-alliance.jpg",
+      src: "images/triple-alliance.webp",
     },
     {
       title:
@@ -96,64 +96,135 @@ const STORE = {
   ],
   score: 0,
   currentQuestion: 0,
-  guess: 0,
+  correct: false,
   started: false,
-  hasFeedback: false,
+  feedback: false,
 };
 
 //render
 function render() {
-  $("#start").hide();
-  $("#quiz").hide();
-  $("#next").hide();
-
   if (!STORE.started) {
-    $("#start").show();
-  } else if (STORE.started) {
+    renderStart();
+  } else if (STORE.feedback) {
+    renderFeedback();
+  } else if (STORE.currentQuestion >= STORE.questions.length) {
+    renderSummary();
+  } else {
     renderQuestion();
   }
 }
 
 //render functions
+function renderStart() {
+  $("main").html(`
+  <section class="start">
+    <h2>Welcome!</h2>
+    <p>Are you ready to test your knowledge on the Great War?</p>
+    <img src="images/wwi-homepage.jpg"/>
+    <button id="start">Start Quiz</button>
+  </section>
+  `);
+}
+
+function renderFeedback() {
+  $("main").html(`
+  <section class="feedback">
+    <h2>${STORE.correct ? "Correct!" : "Incorrect"}</h2>
+    <p>${STORE.feedback}</p>
+    <button id="next">Next Question</button>
+  </section>`);
+}
+
+function renderSummary() {
+  $("main").html(`
+  <section class=summary>
+    <h2>Quiz Summary:</h2>
+    <p>You got ${STORE.score} out of ${STORE.questions.length} correct!</p>
+    <button id="restart">Restart Quiz</button>
+  </section>`);
+}
+
 function renderQuestion() {
-  $("#quiz").show();
   const question = STORE.questions[STORE.currentQuestion];
-  $("#quiz").html(`
-    <form class="question">
+  $("main").html(`
+  <form class="question">
     <h2>${question.title}</h2>
-    <img class="question-image" src='${question.src}'>
-    </form>
-    `);
+    <h4>Score: ${STORE.score}/${STORE.currentQuestion}</h4>
+    <section class="question-details">
+      <img src="${question.src}">
+      <ul>
+      ${question.answers
+        .map((answer, i) => {
+          return `<li>
+                  <input type="radio" name="answer"
+                  value="${i}" required id="${i}"/>
+                  <label for="${i}">${answer}</label>
+                </li>`;
+        })
+        .join("")}
+        <ul>
+      </section>
+      <button id="submit" type="submit">Submit Answer</button>
+  <form>
+  `);
 }
 
 //event listeners
-function startQuiz() {
-  $("#start-quiz").on("click", function (e) {
-    STORE.started = true;
-    render();
-  });
+function onStart() {
+  $("main").on("click", "#start", startedQuiz);
 }
 
-function submitChoice() {}
+function onAnswer() {
+  $("main").on("click", "#submit", submitAnswer);
+}
+
+function onNext() {
+  $("main").on("click", "#next", nextQuestion);
+}
+
+function onRestart() {
+  $("main").on("click", "#restart", restartQuiz);
+}
+
+//logic questions
+function startedQuiz() {
+  STORE.started = true;
+  render();
+}
 
 function nextQuestion() {
-  $;
+  STORE.currentQuestion++;
+  STORE.feedback = false;
+  STORE.correct = false;
+  render();
 }
 
 function restartQuiz() {
-  if (STORE.currentQuestion > STORE.questions.length) {
-    $("#summary").show();
-  } else {
-    $("#summary").hide();
+  STORE.started = false;
+  STORE.currentQuestion = 0;
+  STORE.score = 0;
+  render();
+}
+
+function submitAnswer() {
+  const question = STORE.questions[STORE.currentQuestion];
+  const guess = parseInt($('input[type="radio"]:checked').val());
+  if (question.correct === guess) {
+    STORE.correct = true;
+    STORE.score++;
   }
+  STORE.feedback = `The correct answer was ${
+    question.answers[question.correct]
+  }`;
+  render();
 }
 
 //main
 function main() {
-  startQuiz();
-  submitChoice();
-  nextQuestion();
-  restartQuiz();
+  onRestart();
+  onNext();
+  onAnswer();
+  onStart();
   render();
 }
 
