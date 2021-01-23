@@ -101,33 +101,33 @@ const STORE = {
   feedback: false,
 };
 
-//render
+//render functions
 function render() {
   if (!STORE.started) {
-    renderStart();
+    $("main").html(renderStart());
   } else if (STORE.feedback) {
-    renderFeedback();
+    $("main").html(renderFeedback());
   } else if (STORE.currentQuestion >= STORE.questions.length) {
-    renderSummary();
+    $("main").html(renderSummary());
   } else {
-    renderQuestion();
+    $("main").html(renderQuestion());
   }
 }
 
 //render functions
 function renderStart() {
-  $("main").html(`
+  return `
   <section class="start">
     <h2>Welcome!</h2>
     <p>Are you ready to test your knowledge on the Great War?</p>
     <img src="images/wwi-homepage.jpg"/>
     <button id="start">Start Quiz</button>
   </section>
-  `);
+  `;
 }
 
 function renderFeedback() {
-  $("main").html(`
+  return `
   <section class="feedback">
     <h2>${STORE.correct ? "Correct!" : "Incorrect"}</h2>
     <p>${STORE.feedback}</p>
@@ -136,7 +136,7 @@ function renderFeedback() {
 }
 
 function renderSummary() {
-  $("main").html(`
+  return `
   <section class=summary>
     <h2>Quiz Summary:</h2>
     <p>You got ${STORE.score} out of ${STORE.questions.length} correct!</p>
@@ -144,11 +144,13 @@ function renderSummary() {
   </section>`);
 }
 
+/*need to make submission of answer required*/
 function renderQuestion() {
   const question = STORE.questions[STORE.currentQuestion];
-  $("main").html(`
+  return `
   <form class="question">
     <h2>${question.title}</h2>
+    <h4>Question: ${STORE.currentQuestion}/${STORE.questions.length}</h4>
     <h4>Score: ${STORE.score}/${STORE.currentQuestion}</h4>
     <section class="question-details">
       <img src="${question.src}">
@@ -157,7 +159,7 @@ function renderQuestion() {
         .map((answer, i) => {
           return `<li>
                   <input type="radio" name="answer"
-                  value="${i}" required id="${i}"/>
+                  value="${i}" required class="required" id="${i}"/>
                   <label for="${i}">${answer}</label>
                 </li>`;
         })
@@ -175,7 +177,7 @@ function onStart() {
 }
 
 function onAnswer() {
-  $("main").on("click", "#submit", submitAnswer);
+  $("main").on("submit", ".question", submitAnswer);
 }
 
 function onNext() {
@@ -206,7 +208,8 @@ function restartQuiz() {
   render();
 }
 
-function submitAnswer() {
+function submitAnswer(e) {
+  e.preventDefault();
   const question = STORE.questions[STORE.currentQuestion];
   const guess = parseInt($('input[type="radio"]:checked').val());
   if (question.correct === guess) {
