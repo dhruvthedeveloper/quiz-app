@@ -132,7 +132,7 @@ function renderFeedback() {
     <h2>${STORE.correct ? "Correct!" : "Incorrect"}</h2>
     <p>${STORE.feedback}</p>
     <button id="next">Next Question</button>
-  </section>`);
+  </section>`;
 }
 
 function renderSummary() {
@@ -141,7 +141,7 @@ function renderSummary() {
     <h2>Quiz Summary:</h2>
     <p>You got ${STORE.score} out of ${STORE.questions.length} correct!</p>
     <button id="restart">Restart Quiz</button>
-  </section>`);
+  </section>`;
 }
 
 /*need to make submission of answer required*/
@@ -168,7 +168,7 @@ function renderQuestion() {
       </section>
       <button id="submit" type="submit">Submit Answer</button>
   <form>
-  `);
+  `;
 }
 
 //event listeners
